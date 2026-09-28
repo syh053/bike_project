@@ -15,27 +15,25 @@ bike_project/
 ### 前置需求
 - PostgreSQL(本機已啟動服務,建立好 `bike_db` 資料庫與帳號)
 - Redis(本機已啟動服務,預設 port 6379)
-- Python 3.11+
-- Node.js 20+
+- Python 3.11+ 與 [uv](https://docs.astral.sh/uv/)
+- Node.js 20+ 與 [pnpm](https://pnpm.io/)
 
 ### 後端
 ```bash
 cd backend
-python -m venv .venv
-source .venv/Scripts/activate   # Windows Git Bash
-pip install -r requirements.txt
+uv sync                         # 自動建立 .venv 並安裝 pyproject.toml/uv.lock 鎖定的套件
 cp .env.example .env            # 依本機 PostgreSQL/Redis 設定調整
-alembic upgrade head
-uvicorn app.main:app --reload
+uv run alembic upgrade head
+uv run uvicorn app.main:app --reload
 ```
 後端預設跑在 http://localhost:8000,API 文件在 http://localhost:8000/docs
 
 ### 前端
 ```bash
 cd frontend
-npm install
+pnpm install
 cp .env.example .env
-npm run dev
+pnpm run dev
 ```
 前端預設跑在 http://localhost:5173
 
