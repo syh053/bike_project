@@ -9,7 +9,7 @@ RUN corepack enable && corepack prepare pnpm@10.30.3 --activate
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .
-ARG VITE_API_BASE_URL=http://localhost:8000/api
+ARG VITE_API_BASE_URL=${VITE_API_BASE_URL}
 ARG VITE_MAP_DEFAULT_LAT=25.0170
 ARG VITE_MAP_DEFAULT_LNG=121.4620
 ARG VITE_MAP_DEFAULT_ZOOM=12
