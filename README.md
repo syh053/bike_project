@@ -39,6 +39,24 @@ npm run dev
 ```
 前端預設跑在 http://localhost:5173
 
+## Docker 部署
+
+不需要本機安裝 PostgreSQL/Redis/Node,直接用 Docker Compose 啟動整套服務:
+
+```bash
+docker compose up --build
+```
+
+- 前端:http://localhost:5173
+- 後端 API:http://localhost:8000/api
+- 後端 Swagger 文件:http://localhost:8000/docs
+
+第一次啟動時後端會自動執行 `alembic upgrade head` 建立資料表,資料庫資料會保存在 named volume(`pgdata`),重啟容器不會遺失。
+
+> 注意:前端的 `VITE_API_BASE_URL` 是編譯期(build-time)寫死進靜態檔案的,如果要更換後端對外的 host/port,需要重新 build 前端 image(`docker compose build frontend`)才會生效。
+>
+> `docker-compose.yml` 裡的資料庫帳密與 `backend/.env.docker.example` 裡的 `SECRET_KEY` 都只是開發用預設值,正式對外部署前請務必更換。
+
 ## 資料來源
 新北市政府資料開放平台 — YouBike2.0 即時資訊
 https://data.ntpc.gov.tw/api/datasets/010e5b15-3823-4b20-b401-b1cf000550c5/json

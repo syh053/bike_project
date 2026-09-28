@@ -1,6 +1,11 @@
 # 環境變數
 .env
 */.env
+backend/.env.docker
+
+# 開發機專屬憑證(如防毒軟體 HTTPS 掃描用的重簽根憑證),因人因機器而異,不應進版控
+backend/certs/*.crt
+frontend/certs/*.crt
 
 # Python
 __pycache__/
