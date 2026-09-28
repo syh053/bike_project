@@ -4,18 +4,22 @@ FastAPI + PostgreSQL(SQLAlchemy + Alembic)+ Redis(redis.asyncio)。
 
 ## 環境需求
 
-- Python 3.12+
+- Python 3.11+(專案以 `.python-version` 鎖定 3.11,與 Docker image 一致)
+- [uv](https://docs.astral.sh/uv/) 套件管理工具
 - PostgreSQL(本機需先建立資料庫與帳號,對應 `.env` 的 `DATABASE_URL`)
 - Redis
 
 ## 安裝
 
 ```bash
-python -m venv venv
-venv\Scripts\activate        # Windows
-pip install -r requirements.txt
-copy .env.example .env       # 依實際環境調整內容
+uv sync                       # 自動建立 .venv 並安裝 pyproject.toml/uv.lock 鎖定的套件
+copy .env.example .env        # 依實際環境調整內容
 ```
+
+> 若開發機的防毒/資安軟體會攔截並重簽對外 HTTPS 連線(導致 `uv sync` 出現憑證驗證錯誤),
+> `pyproject.toml` 的 `[tool.uv]` 已預設開啟 `native-tls = true`,讓 uv 改用系統信任庫(本機
+> Windows 通常已經信任該憑證)。在 Docker 容器內則另外透過 `certs/` 資料夾 + `update-ca-certificates`
+> 把同一張憑證匯入容器的系統信任庫(見 `Dockerfile`)。
 
 ## 環境變數說明(`.env`)
 
@@ -40,27 +44,27 @@ copy .env.example .env       # 依實際環境調整內容
 ## 建立資料庫 Schema
 
 ```bash
-alembic upgrade head
+uv run alembic upgrade head
 ```
 
 若需要新增 migration:
 
 ```bash
-alembic revision --autogenerate -m "訊息"
-alembic upgrade head
+uv run alembic revision --autogenerate -m "訊息"
+uv run alembic upgrade head
 ```
 
 ## 啟動
 
 ```bash
-uvicorn app.main:app --reload
+uv run uvicorn app.main:app --reload
 ```
 
 啟動後可開啟 http://localhost:8000/docs 查看互動式 API 文件。
 
 ## 已知環境注意事項(Windows)
 
-- **passlib 與新版 bcrypt 不相容**:`passlib==1.7.4` 呼叫 `bcrypt.__about__.__version__` 這個新版 `bcrypt`(5.x)已移除的屬性,雜湊密碼時會丟出 `password cannot be longer than 72 bytes` 之類的錯誤。本專案已在 `requirements.txt` 鎖定 `bcrypt==4.0.1`,重建環境時請勿升級此套件版本,除非同時升級 passlib 並驗證相容性。
+- **passlib 與新版 bcrypt 不相容**:`passlib==1.7.4` 呼叫 `bcrypt.__about__.__version__` 這個新版 `bcrypt`(5.x)已移除的屬性,雜湊密碼時會丟出 `password cannot be longer than 72 bytes` 之類的錯誤。本專案已在 `pyproject.toml` 鎖定 `bcrypt==4.0.1`,重建環境時請勿升級此套件版本,除非同時升級 passlib 並驗證相容性。
 - **Windows 上 httpx 對新北市開放資料 API 的 SSL 驗證失敗**:純用 `certifi` 內建憑證鏈連線 `https://data.ntpc.gov.tw` 會出現 `CERTIFICATE_VERIFY_FAILED: unable to get local issuer certificate`,但 Windows 內建信任庫(curl 走的 schannel)可以正常驗證。因此 `app/services/ntpc_client.py` 改用 `truststore` 套件,讓 Python 的 SSL context 直接讀取作業系統信任庫,不再依賴 certifi。
 
 ## 快速自我測試(curl)
