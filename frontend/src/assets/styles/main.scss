@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// 自訂 SCSS 變數
+$map-height-desktop: calc(100vh - 4rem);
+$map-height-mobile: 60vh;
+
+.map-panel-height {
+  height: $map-height-mobile;
+
+  @media (min-width: 768px) {
+    height: $map-height-desktop;
+  }
+}
+
+// Leaflet popup 內容與 daisyUI 風格搭配的微調
+.leaflet-popup-content-wrapper {
+  border-radius: 0.5rem;
+}
+
+.marker-cluster-custom {
+  background-color: hsl(var(--p) / 0.7);
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
